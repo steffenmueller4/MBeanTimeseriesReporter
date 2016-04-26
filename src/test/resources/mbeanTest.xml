@@ -1,0 +1,18 @@
+<MBeans>
+	<MBean name="OperatingSystem" objectname="java.lang:type=OperatingSystem">
+		<Attribute name="SystemCpuLoad">
+			<GaugeType>Double</GaugeType>
+			<MetricName>SystemCpuLoad</MetricName>
+		</Attribute>
+		<Attribute name="ProcessCpuLoad">
+            <GaugeType>Double</GaugeType>
+            <MetricName>ProcessCpuLoad</MetricName>
+        </Attribute>
+	</MBean>
+	<MBean name="Runtime" objectname="java.lang:type=Runtime">
+        <Attribute name="Uptime">
+            <GaugeType>Long</GaugeType>
+            <MetricName>Uptime</MetricName>
+        </Attribute>
+    </MBean>
+</MBeans>
