@@ -2,6 +2,7 @@ package edu.kit.aifb.mbeantimeseriesreporter.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -9,24 +10,33 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class GaugeType {
 	
-	protected String value;
+	@XmlEnum
+	public enum GaugeTypeValue {
+		Double,
+		Long,
+		Integer,
+		Boolean,
+		SizeOfList,
+		SizeOfArray
+	}
+	
+	protected GaugeTypeValue value;
+	protected String operation;
 	
 	public GaugeType() {
 		
 	}
 	
-	public GaugeType(String value){
+	public GaugeType(GaugeTypeValue value){
 		this.value = value;
 	}
 
 	@XmlValue
-	public String getValue() {
+	public GaugeTypeValue getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(GaugeTypeValue value) {
 		this.value = value;
 	}
-	
-	
 }

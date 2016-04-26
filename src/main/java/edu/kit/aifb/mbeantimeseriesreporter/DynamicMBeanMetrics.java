@@ -16,7 +16,8 @@
 package edu.kit.aifb.mbeantimeseriesreporter;
 
 import java.io.IOException;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,22 +68,29 @@ public final class DynamicMBeanMetrics extends MonitorMetricsBase {
 
 				MBeanMonitoring<?> monitoring = null;
 				switch (attribute.getGaugeType().getValue()) {
-				case "Double":
+				case Double:
 					monitoring = new MBeanMonitoring<Double>(new ObjectName(mbean.getObjectName()),
 							attribute.getMetricName().getValue(), metricName);
 					break;
-				case "Long":
+				case Long:
 					monitoring = new MBeanMonitoring<Long>(new ObjectName(mbean.getObjectName()),
 							attribute.getMetricName().getValue(), metricName);
 					break;
-				case "Integer":
+				case Integer:
 					monitoring = new MBeanMonitoring<Integer>(new ObjectName(mbean.getObjectName()),
 							attribute.getMetricName().getValue(), metricName);
 					break;
-				case "Boolean":
+				case SizeOfList:
+					monitoring = new MBeanMonitoring<Integer>(new ObjectName(mbean.getObjectName()),
+							attribute.getMetricName().getValue(), metricName);
+					monitoring.invokeMethod = "size";
+					break;
+				case Boolean:
 					monitoring = new MBeanMonitoring<Boolean>(new ObjectName(mbean.getObjectName()),
 							attribute.getMetricName().getValue(), metricName);
-					break;
+					break;					
+				default:
+					System.out.println("Invalid GaugeType!");
 				}
 				mbeanMonitorings.add(monitoring);
 				this.metricsRegistry.register(monitoring.metricName, monitoring.gauge);
@@ -99,9 +107,16 @@ public final class DynamicMBeanMetrics extends MonitorMetricsBase {
 		ArrayList<MBeanMonitoring<?>> removes = new ArrayList<MBeanMonitoring<?>>();
 		for (MBeanMonitoring<?> mbeanMonitoring : mbeanMonitorings) {
 			try {
-				mbeanMonitoring
-						.setValue(connection.getAttribute(mbeanMonitoring.mbeanName, mbeanMonitoring.attributeName));
-			} catch (InstanceNotFoundException e) {
+				Object value = connection.getAttribute(mbeanMonitoring.mbeanName, mbeanMonitoring.attributeName);
+
+				if (mbeanMonitoring.invokeMethod != null){
+					Class<?> c = value.getClass();
+					Method m = c.getDeclaredMethod(mbeanMonitoring.invokeMethod);
+					value = m.invoke(value);
+				}
+
+				mbeanMonitoring.setValue(value);
+			} catch (InstanceNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
 				System.err.println("Instance '" + mbeanMonitoring.mbeanName + "' attribute '"
 						+ mbeanMonitoring.attributeName + "' not found! Entry will be removed.");
 				e.printStackTrace();
@@ -153,6 +168,7 @@ public final class DynamicMBeanMetrics extends MonitorMetricsBase {
 		public final String metricName;
 		public T value;
 		public Gauge<T> gauge;
+		public String invokeMethod = null;
 
 		/**
 		 * Constructor.

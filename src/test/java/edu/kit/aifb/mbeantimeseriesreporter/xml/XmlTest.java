@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import edu.kit.aifb.mbeantimeseriesreporter.xml.Attribute;
 import edu.kit.aifb.mbeantimeseriesreporter.xml.GaugeType;
+import edu.kit.aifb.mbeantimeseriesreporter.xml.GaugeType.GaugeTypeValue;
 import edu.kit.aifb.mbeantimeseriesreporter.xml.MBean;
 import edu.kit.aifb.mbeantimeseriesreporter.xml.MBeans;
 import edu.kit.aifb.mbeantimeseriesreporter.xml.MetricName;
@@ -20,8 +21,8 @@ public class XmlTest {
 
 	@Test
 	public void testXmlMarshall() throws JAXBException {
-		GaugeType doubleType = new GaugeType("Double");
-		GaugeType longType = new GaugeType("Long");
+		GaugeType doubleType = new GaugeType(GaugeTypeValue.Double);
+		GaugeType longType = new GaugeType(GaugeTypeValue.Long);
 
 		MetricName mn1 = new MetricName("SystemCpuLoad");
 		MetricName mn2 = new MetricName("ProcessCpuLoad");
