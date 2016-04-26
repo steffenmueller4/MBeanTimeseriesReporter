@@ -109,7 +109,7 @@ public final class DynamicMBeanMetrics extends MonitorMetricsBase {
 			try {
 				Object value = connection.getAttribute(mbeanMonitoring.mbeanName, mbeanMonitoring.attributeName);
 
-				if (mbeanMonitoring.invokeMethod != null){
+				if (value != null && mbeanMonitoring.invokeMethod != null){
 					Class<?> c = value.getClass();
 					Method m = c.getDeclaredMethod(mbeanMonitoring.invokeMethod);
 					value = m.invoke(value);
