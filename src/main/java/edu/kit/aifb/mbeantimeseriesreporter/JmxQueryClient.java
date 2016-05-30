@@ -44,7 +44,8 @@ public final class JmxQueryClient extends Thread {
 	private MBeanServerConnection mbeanServerConnection;
 	private JMXConnector jmxConnector;
 	private MBeans mbeans;
-	private String clientName;
+	private final String clientName;
+	private final int timeInterval;
 
 	private List<DynamicMBeanMetrics> mbeanMetrics = Lists.newArrayList();
 
@@ -57,12 +58,13 @@ public final class JmxQueryClient extends Thread {
 	 * @throws MBeanTimeseriesReporterException
 	 *             If an error occurs.
 	 */
-	public JmxQueryClient(MetricRegistry metricsRegistry, String ipAddress, MBeans mbeans, String clientName)
+	public JmxQueryClient(MetricRegistry metricsRegistry, String ipAddress, MBeans mbeans, String clientName, int timeInterval)
 			throws MBeanTimeseriesReporterException {
 		this.metricsRegistry = metricsRegistry;
 		this.ipAddress = ipAddress;
 		this.mbeans = mbeans;
 		this.clientName = clientName;
+		this.timeInterval = timeInterval;
 	}
 
 	/**
@@ -122,7 +124,7 @@ public final class JmxQueryClient extends Thread {
 			while (run) {
 				query();
 
-				Thread.sleep(MBeanTimeseriesReporter.TIME_INTERVAL_IN_MS);
+				Thread.sleep(timeInterval);
 			}
 			disconnect();
 		} catch (MBeanTimeseriesReporterException e) {

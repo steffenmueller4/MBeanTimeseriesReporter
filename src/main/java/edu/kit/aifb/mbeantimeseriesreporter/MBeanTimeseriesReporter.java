@@ -48,15 +48,17 @@ public class MBeanTimeseriesReporter {
 
 	private static final Map<String, JmxQueryClient> CONNECTED_HOST_LIST = Maps.newHashMap();
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
-	static final int TIME_INTERVAL_IN_MS = 10000;
+	static final int TIME_INTERVAL_IN_MS_DEFAULTVALUE = 10000;
 
 	private MetricRegistry metricsRegistry;
 	private CsvReporter reporter;
 
-	@Parameter(names = "-hosts", converter = HostPortConverter.class, description = "Specifies the hosts that should be queried: <IP-address:port> <IP-address:port> ...", required = true)
+	@Parameter(names = "-hosts", converter = HostPortConverter.class, description = "Specifies the hosts that should be queried, for example: -hosts <IP-address:port> -hosts <IP-address:port> ...", required = true)
 	private List<HostPort> ipAddressList;
 	@Parameter(converter = FileConverter.class, description = "The configuration file with the MBeans which should be queried.", required = true, names = "-file")
 	private File mbeanConfigurationFile;
+	@Parameter(names = "-t", description = "The time interval for checking and writing the monitored attributes in milliseconds. Default is: 10000.", arity = 1)
+	private int timeInterval = TIME_INTERVAL_IN_MS_DEFAULTVALUE;
 
 	private MBeanTimeseriesReporter() {
 
@@ -86,14 +88,14 @@ public class MBeanTimeseriesReporter {
 		metricsDir.mkdir();
 		reporter = CsvReporter.forRegistry(metricsRegistry).formatFor(Locale.GERMANY).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).build(metricsDir);
-		reporter.start(TIME_INTERVAL_IN_MS, TimeUnit.MILLISECONDS);
+		reporter.start(timeInterval, TimeUnit.MILLISECONDS);
 
 		// Create JMX Clients
 		for (HostPort hostPort : ipAddressList) {
 			String ipAddress = hostPort.host + ":" + hostPort.port;
 			String name = "ip-" + hostPort.host.replace(".", "-");
 
-			JmxQueryClient t = new JmxQueryClient(metricsRegistry, ipAddress, mbeans, name);
+			JmxQueryClient t = new JmxQueryClient(metricsRegistry, ipAddress, mbeans, name, timeInterval);
 			CONNECTED_HOST_LIST.put(name + "Jmx", t);
 			t.start();
 		}
